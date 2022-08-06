@@ -35,6 +35,7 @@ defmodule GhDebug.MixProject do
     [
       {:phoenix, "~> 1.6.11"},
       {:phoenix_ecto, "~> 4.4"},
+      {:phoenix_view, github: "qdentity/phoenix_view", branch: "debug", override: true},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 3.0"},
