@@ -1,0 +1,38 @@
+name: ci
+
+on: push
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Elixir installation
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 25.0.3
+          elixir-version: 1.13.4
+
+      - name: Elixir cache
+        uses: actions/cache@v3
+        id: build_cache
+        with:
+          path: |
+            _build
+            deps
+          key: build-${{ hashFiles('mix.lock') }}-${{ hashFiles('config/**', 'lib/**') }}
+          restore-keys: |
+            build-${{ hashFiles('mix.lock') }}
+            build-
+
+      - name: Mix dependencies
+        run: mix deps.get
+
+      - name: Mix compile
+        run: mix compile --verbose

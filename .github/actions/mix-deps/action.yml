@@ -1,0 +1,29 @@
+name: Mix dependencies
+description: Restore mix cache and fetch dependencies
+
+inputs:
+  cache_version:
+    required: false
+    default: v0
+    description: can be used to reset the cache
+
+outputs:
+  cache-hit:
+    value: ${{ steps.mix_deps.outputs.cache-hit }}
+    description: whether the cache was hit
+
+runs:
+  using: "composite"
+  steps:
+    # - name: Elixir cache
+    #   uses: actions/cache@v3
+    #   id: mix_deps
+    #   with:
+    #     path: deps
+    #     key: mix-deps-${{ inputs.cache_version }}-${{ hashFiles('mix.lock') }}"
+    #     restore-keys: mix-deps-${{ inputs.cache_version }}-
+
+    - name: Mix dependencies
+      if: steps.mix_deps.outputs.cache-hit != 'true'
+      run: mix deps.get
+      shell: bash

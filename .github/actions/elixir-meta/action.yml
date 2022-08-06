@@ -1,0 +1,21 @@
+name: Elixir meta
+description: Determine Elixir version and Mix home dir at runtime
+
+outputs:
+  version:
+    value: ${{ steps.meta.outputs.version }}
+    description: The Elixir version in the format like 'elixir1.13.4_otp25'
+  mix_home:
+    value: ${{ steps.meta.outputs.mix_home }}
+    description: The Mix home directory determined by Mix.Utils.mix_home()
+
+runs:
+  using: "composite"
+  steps:
+    - name: Determine the Elixir version
+      id: meta
+      run: |
+        echo "::set-output name=version::$(elixir -e 'IO.puts("elixir#{System.version()}_otp#{:erlang.system_info(:otp_release)}")')"
+        echo "::set-output name=mix_home::$(elixir -e 'IO.puts(Mix.Utils.mix_home())')"
+
+      shell: bash

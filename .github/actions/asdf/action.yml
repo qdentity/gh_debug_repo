@@ -1,0 +1,52 @@
+name: Install .tool-versions
+description: Install Elixir and Node.js using .tool-versions
+
+inputs:
+  install:
+    required: false
+    default: 'true'
+    description: whether to also install the tools or just parse the versions
+  elixir:
+    required: false
+    default: 'true'
+    description: whether to consider Elixir
+  nodejs:
+    required: false
+    default: 'true'
+    description: whether to consider Node.js
+
+outputs:
+  elixir:
+    value: ${{ steps.elixir.outputs.version }}
+    description: the Elixir version
+  erlang:
+    value: ${{ steps.erlang.outputs.version }}
+    description: the Erlang version
+  nodejs:
+    value: ${{ steps.nodejs.outputs.version }}
+    description: the Node.js version
+
+runs:
+  using: "composite"
+  steps:
+    - name: Determine the elixir version
+      id: elixir
+      run: echo "::set-output name=version::$(cat .tool-versions | perl -nle 'if (/elixir (?:ref:v)?(\d+\.\d+(?:\.\d+))/g) { print $1; exit }')"
+      shell: bash
+
+    - name: Determine the erlang version
+      id: erlang
+      run: echo "::set-output name=version::$(cat .tool-versions | perl -nle 'if (/erlang (\d+\.\d+(?:\.\d+))/g) { print $1; exit }')"
+      shell: bash
+
+    - name: Determine the nodejs version
+      id: nodejs
+      run: echo "::set-output name=version::$(cat .tool-versions | perl -nle 'if (/nodejs (\d+\.\d+(?:\.\d+))/g) { print $1; exit }')"
+      shell: bash
+
+
+    - name: Node.js installation
+      if: inputs.nodejs == 'true' && inputs.install == 'true'
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ env.NODE_VERSION }}

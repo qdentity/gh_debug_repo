@@ -1,0 +1,42 @@
+name: Elixir build cache
+description: Restore Elixir build cache
+
+inputs:
+  mix_env:
+    required: false
+    default: dev
+    description:
+      the Mix environment is used to determine whether to take the test folder
+      into account for the cache key
+  version:
+    required: false
+    default: v0
+    description: can be used to reset the cache
+
+
+outputs:
+  cache-hit:
+    value: ${{ steps.build_cache.outputs.cache-hit }}
+    description: whether the cache was hit
+
+runs:
+  using: "composite"
+  steps:
+    - id: elixir
+      uses: ./.github/actions/elixir-meta
+
+    - name: Determine the base cache key
+      id: caches
+      run: |
+        BASE_KEY="elixir-${{ inputs.version }}-${{ inputs.mix_env }}-${{ steps.elixir.outputs.version }}"
+        echo "::set-output name=base_key::$BASE_KEY"
+
+        if [ "${{ inputs.mix_env }}" = "test" ]; then
+          SRC_DIGEST="${{ hashFiles('config/**', 'lib/**', 'test/**') }}"
+        else
+          SRC_DIGEST="${{ hashFiles('config/**', 'lib/**') }}"
+        fi
+
+        echo "::set-output name=src_digest::$SRC_DIGEST"
+        echo "::set-output name=mix_lock_digest::${{ hashFiles('mix.lock') }}"
+      shell: bash
