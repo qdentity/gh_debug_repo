@@ -13,8 +13,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: restore timestamps
-        uses: chetan/git-restore-mtime-action@v1
+      - name: Restore timestamps
+        uses: .github/actions/restore-mtime
 
       - name: Elixir installation
         uses: erlef/setup-beam@v1
